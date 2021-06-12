@@ -1,4 +1,4 @@
-#include "autocorrectlib.h"
+#include "inc/autocorrectlib.h"
 
 AutoCorrect::AutoCorrect(){
     contents = "";
@@ -27,7 +27,7 @@ bool AutoCorrect::removeFromDictionary (std::string word){
 }
 
 std::vector<std::string> AutoCorrect::checkSpelling (){
-  
+
 }
 
 /*
