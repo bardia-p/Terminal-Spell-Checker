@@ -26,7 +26,7 @@ class AutoCorrect {
      * Checks the spelling of all the words in the contents of the class and returns a list of words with incorrect spelling.
      * @return a list of words with incorrect spelling.
      */
-    vector<string> checkSpelling ();
+    map<string, string> checkSpelling ();
 
     /**
      * Gives a list of suggestions for the word with incorrect spelling.

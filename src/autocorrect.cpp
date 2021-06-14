@@ -10,16 +10,18 @@ using namespace std;
 
 // Function signatures
 void printVector(vector<string> vectorToPrint, int colourCode);
+void printMap(map<string, string> mapToPrint, int colour1, int colour2);
 void inputGUI();
 void getStatus();
 void makeSuggestions(string word);
+void applySuggestion(string word, string suggestion);
 bool readFile(string filePath);
 void readInput( int argc, char **argv);
 
 enum Color { black, red, green, yellow, blue, magenta, cyan, white };
 
 static AutoCorrect autocorrect;
-static vector<string> incorrectWords;
+static map<string, string> incorrectWords;
 static vector<string> suggestions;
 
 int main(int argc, char **argv) {
@@ -43,9 +45,12 @@ int main(int argc, char **argv) {
     return 0;
   }
 
+  // Gets the status of the input with the incorrect words.
+  incorrectWords = autocorrect.checkSpelling();
 
   getStatus();
 
+  // Calls the GUI to ask the user for input.
   inputGUI();
 
   return 0;
@@ -62,7 +67,11 @@ bool readFile(string filePath){
   ifstream ifile (filePath);
   if (ifile.is_open()) {
     while (ifile >> word) {
-      contents.push_back(word);
+      if (word[word.length()-1] == '.' || word[word.length()-1] == ',' || word[word.length()-1] == ';'){
+        contents.push_back(word.substr(0, word.length()-1));
+      } else{
+        contents.push_back(word);
+      }
     }
     ifile.close();
     autocorrect.setContents(contents);
@@ -82,7 +91,12 @@ void readInput(int argc, char **argv){
   vector<string> contents;
 
   for (int i = 2; i < argc; i++) {
-    contents.push_back((string)argv[i]);
+    string word = argv[i];
+    if (word[word.length()-1] == '.' || word[word.length()-1] == ',' || word[word.length()-1] == ';'){
+      contents.push_back(word.substr(0, word.length()-1));
+    } else{
+      contents.push_back(word);
+    }
   }
   autocorrect.setContents(contents);
 }
@@ -102,6 +116,7 @@ void inputGUI(){
 
     string word;
     string wordChoose = "";
+    string suggestion = "";
 
     int command = -1;
 
@@ -118,19 +133,33 @@ void inputGUI(){
           } else {
             command = -1;
           }
+        } else if (word == "apply") {
+          command = 3;
+          if (ss >> word) {
+            wordChoose = word;
+          } else {
+            command = -1;
+          }
+          if (ss >> word) {
+            suggestion = word;
+          } else {
+            command = -1;
+          }
         }
-    }
+      }
 
-    if (command == 0){
-      cout << "Goodbye!" << endl;
-      running = false;
-    } else if (command == 1){
-      getStatus();
-    } else if (command = 2) {
-      makeSuggestions(wordChoose);
-    } else {
-      cout << "Invalid Command" << endl;
-    }
+      if (command == 0){
+        cout << "Goodbye!" << endl;
+        running = false;
+      } else if (command == 1){
+        getStatus();
+      } else if (command == 2){
+        makeSuggestions(wordChoose);
+      } else if (command == 3){
+        applySuggestion(wordChoose, suggestion);
+      } else {
+        cout << "Invalid Command" << endl;
+      }
   }
 }
 
@@ -138,9 +167,8 @@ void inputGUI(){
  * Prints the status of the text (the list of a incorrect words).
  */
 void getStatus(){
-  incorrectWords = autocorrect.checkSpelling();
   if (incorrectWords.size()!=0){
-    printVector(incorrectWords, red);
+    printMap(incorrectWords, red, green);
   } else {
     cout << "Everything looks good!" << endl;
   }
@@ -151,9 +179,28 @@ void getStatus(){
  * @param word the word to give suggestions for.
  */
 void makeSuggestions(string word){
-  if (find(incorrectWords.begin(), incorrectWords.end(), word)!= incorrectWords.end()){
+  if (incorrectWords.find(word) != incorrectWords.end()){
     suggestions = autocorrect.makeSuggestions(word);
     printVector(suggestions, blue);
+  } else {
+    cout << "The word that you entered is not one of the incorrect words" << endl;
+  }
+}
+
+/**
+ * Applies the suggestion for the given word.
+ * @param word the word to change.
+ * @param suggestion the suggestion to apply.
+ */
+void applySuggestion(string word, string suggestion){
+  if (incorrectWords.find(word) != incorrectWords.end()){
+    suggestions = autocorrect.makeSuggestions(word);
+    auto index = find(suggestions.begin(), suggestions.end(), suggestion);
+    if (index != suggestions.end()){
+      incorrectWords[word] = suggestion;
+    } else {
+      cout << "The suggestion is not among the list of the given suggestions" << endl;
+    }
   } else {
     cout << "The word that you entered is not one of the incorrect words" << endl;
   }
@@ -170,4 +217,29 @@ void printVector(vector<string> vectorToPrint, int colourCode){
     cout << vectorToPrint[i] << " ";
   }
   cout << "\033[0m\n";
+}
+
+/**
+ * Prints a given map to the screen in a given colour.
+ * @param mapToPrint the map to print to the screen.
+ * @param colour1 the colour for the incorrect words.
+ * @param colour2 the colour for the correct words.
+ */
+void printMap(map<string, string> mapToPrint, int colour1, int colour2){
+  vector<string> incorrect;
+  vector<string> correct;
+
+  for (auto const& it: mapToPrint){
+      if (it.second == ""){
+        incorrect.push_back(it.first);
+      } else {
+        correct.push_back(it.first + " -> " + it.second);
+      }
+  }
+
+  cout << "Incorrect words" << endl;
+  printVector(incorrect, red);
+
+  cout << endl << "Corrections: " << endl;
+  printVector(correct, green);
 }

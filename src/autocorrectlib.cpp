@@ -61,12 +61,13 @@ bool AutoCorrect::isInDictionary (string word){
   return false;
 }
 
-vector<string> AutoCorrect::checkSpelling (){
-  vector<string> incorrectWords;
+
+map<string, string> AutoCorrect::checkSpelling (){
+  map<string, string> incorrectWords;
 
   for (int i = 0; i < contents.size(); i++){
     if (!isInDictionary(contents[i])){
-      incorrectWords.push_back(contents[i]);
+      incorrectWords[contents[i]] = "";
     }
   }
   return incorrectWords;
