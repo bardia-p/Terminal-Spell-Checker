@@ -126,7 +126,7 @@ vector<string> AutoCorrect::makeSuggestions (string word){
 
   if (dictionary.find(key) != dictionary.end()){
     for (int i = 0; i < dictionary[key].size(); i++){
-      if (abs((int)(dictionary[key][i].length() - word.length())) <= 1){
+      if (abs((int)(dictionary[key][i].length() - word.length())) <= 2){
         suggestions.push_back(dictionary[key][i]);
       }
     }
