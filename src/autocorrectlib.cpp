@@ -1,28 +1,27 @@
 #include "inc/autocorrectlib.h"
 
-AutoCorrect::AutoCorrect(){
-    contents = vector<string>();
-    dictionary = map<string,vector<string>>();
+AutoCorrect::AutoCorrect() {
+  contents = vector<string>();
+  dictionary = map<string, vector<string>>();
 }
 
-void AutoCorrect::setContents (vector<string> contents){
+void AutoCorrect::setContents(vector<string> contents) {
   this->contents = contents;
 }
 
-void AutoCorrect::addToDictionary (string word){
+void AutoCorrect::addToDictionary(string word) {
   string key = makeSoundex(word);
   dictionary[key].push_back(word);
 }
 
-bool AutoCorrect::removeFromDictionary (string word){
+bool AutoCorrect::removeFromDictionary(string word) {
   string key = makeSoundex(word);
-  if (dictionary.find(key) != dictionary.end()){
-    auto index =  find(dictionary[key].begin(), dictionary[key].end(), word);
+  if (dictionary.find(key) != dictionary.end()) {
+    auto index = find(dictionary[key].begin(), dictionary[key].end(), word);
 
-    if (index == dictionary[key].end()){
+    if (index == dictionary[key].end()) {
       return false;
-    }
-    else {
+    } else {
       dictionary[key].erase(index);
       return true;
     }
@@ -30,8 +29,8 @@ bool AutoCorrect::removeFromDictionary (string word){
   return false;
 }
 
-void AutoCorrect::buildDictionary (string fileName){
-  ifstream ifile (fileName);
+bool AutoCorrect::buildDictionary(string fileName) {
+  ifstream ifile(fileName);
   string word;
 
   if (ifile.is_open()) {
@@ -39,81 +38,80 @@ void AutoCorrect::buildDictionary (string fileName){
       addToDictionary(word);
     }
     ifile.close();
-  }
-  else {
+    return true;
+  } else {
     cout << "Unable to open the file" << endl;
+    return false;
   }
 }
 
-bool AutoCorrect::isInDictionary (string word){
+bool AutoCorrect::isInDictionary(string word) {
   string key = makeSoundex(word);
 
-  if (dictionary.find(key) != dictionary.end()){
-    auto index =  find(dictionary[key].begin(), dictionary[key].end(), word);
+  if (dictionary.find(key) != dictionary.end()) {
+    auto index = find(dictionary[key].begin(), dictionary[key].end(), word);
 
-    if (index == dictionary[key].end()){
+    if (index == dictionary[key].end()) {
       return false;
-    }
-    else {
+    } else {
       return true;
     }
   }
   return false;
 }
 
-
-map<string, string> AutoCorrect::checkSpelling (){
+map<string, string> AutoCorrect::checkSpelling() {
   map<string, string> incorrectWords;
 
-  for (int i = 0; i < contents.size(); i++){
-    if (!isInDictionary(contents[i])){
+  for (int i = 0; i < contents.size(); i++) {
+    if (!isInDictionary(contents[i])) {
       incorrectWords[contents[i]] = "";
     }
   }
   return incorrectWords;
 }
 
-int AutoCorrect::charCode (char c){
+int AutoCorrect::charCode(char c) {
   c = toupper(c);
-  if (c == 'A' || c == 'E'|| c == 'I' || c == 'O' ||
-      c == 'U' || c == 'H' || c == 'W' || c == 'Y') {
-      return '0';
+  if (c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U' || c == 'H' ||
+      c == 'W' || c == 'Y') {
+    return '0';
   } else if (c == 'B' || c == 'F' || c == 'P' || c == 'V') {
-      return '1';
-  } else if (c == 'C' || c == 'G' || c == 'J' || c == 'K' ||
-      c == 'Q' || c == 'S' || c == 'X' || c == 'Z') {
-      return '2';
+    return '1';
+  } else if (c == 'C' || c == 'G' || c == 'J' || c == 'K' || c == 'Q' ||
+             c == 'S' || c == 'X' || c == 'Z') {
+    return '2';
   } else if (c == 'D' || c == 'T') {
-      return '3';
+    return '3';
   } else if (c == 'M' || c == 'N') {
-      return '4';
+    return '4';
   } else if (c == 'L') {
-      return '5';
+    return '5';
   } else {
-      return '6';
+    return '6';
   }
 }
 
-string AutoCorrect::makeSoundex (string word){
+string AutoCorrect::makeSoundex(string word) {
   string soundexCode = "";
   char sameLetter = '\0';
-  for (int i = 0; i < word.length(); i++){
-    if (i == 0){
+  for (int i = 0; i < word.length(); i++) {
+    if (i == 0) {
       soundexCode += word[0];
     } else {
       char soundexChar = charCode((char)word[i]);
 
-      if (soundexChar != sameLetter && soundexChar != '0'){
+      if (soundexChar != sameLetter && soundexChar != '0') {
         soundexCode += soundexChar;
         sameLetter = soundexChar;
       }
     }
   }
 
-  if (soundexCode.length() > 4){
-    return soundexCode.substr(0,4);
+  if (soundexCode.length() > 4) {
+    return soundexCode.substr(0, 4);
   } else if (soundexCode.length() < 4) {
-    for (int i = soundexCode.length(); i<4; i++){
+    for (int i = soundexCode.length(); i < 4; i++) {
       soundexCode += '0';
     }
   }
@@ -121,17 +119,29 @@ string AutoCorrect::makeSoundex (string word){
   return soundexCode;
 }
 
-vector<string> AutoCorrect::makeSuggestions (string word){
+vector<string> AutoCorrect::makeSuggestions(string word) {
   string key = makeSoundex(word);
   vector<string> suggestions = vector<string>();
 
-  if (dictionary.find(key) != dictionary.end()){
-    for (int i = 0; i < dictionary[key].size(); i++){
-      if (abs((int)(dictionary[key][i].length() - word.length())) <= 2){
+  if (dictionary.find(key) != dictionary.end()) {
+    for (int i = 0; i < dictionary[key].size(); i++) {
+      if (abs((int)(dictionary[key][i].length() - word.length())) <= 2) {
         suggestions.push_back(dictionary[key][i]);
       }
     }
   }
 
   return suggestions;
+}
+
+vector<string> AutoCorrect::getDictionary() {
+  vector<string> dictionaryVector;
+
+  for (auto const &it : dictionary) {
+    for (int i = 0; i < it.second.size(); i++) {
+      dictionaryVector.push_back(it.second[i]);
+    }
+  }
+
+  return dictionaryVector;
 }
