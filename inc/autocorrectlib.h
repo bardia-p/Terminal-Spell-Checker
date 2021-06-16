@@ -9,12 +9,12 @@
 
 using namespace std;
 
-class AutoCorrect {
+class AutoCorrectContext {
 public:
   /**
    * The default constructor for the AutoCorrect class.
    */
-  AutoCorrect();
+  AutoCorrectContext();
 
   /**
    * Finds the soundex code for the given word.

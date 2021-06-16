@@ -25,6 +25,7 @@ void addToDictionary(string word);
 void removeFromDictionary(string word);
 void saveDictionary();
 void switchDictionary();
+void help();
 
 // Print Functions
 void printVector(vector<string> vectorToPrint, int colourCode);
@@ -32,13 +33,13 @@ void printMap(map<string, string> mapToPrint, int colour1, int colour2);
 
 enum Color { black, red, green, yellow, blue, magenta, cyan, white };
 
-static AutoCorrect autocorrect;
+static AutoCorrectContext ac;
 static map<string, string> incorrectWords;
 static map<string, vector<string>> suggestions;
 
 int main(int argc, char **argv) {
   // Initiates the words in the dictionary
-  autocorrect.buildDictionary("files/wordslist.txt");
+  ac.buildDictionary("files/wordslist.txt");
 
   if (argc == 3 && strcmp(argv[1], "-f") == 0) {
     // If the user wants to use a file input
@@ -57,8 +58,13 @@ int main(int argc, char **argv) {
     return 0;
   }
 
+  cout << "\033[1;" << 30 + magenta << "m";
+  cout << "AutoCorrect version 1.0.0" << endl;
+  cout << "To get a list of commands enter 'help' or 'h'" << endl;
+  cout << "\033[0m\n";
+
   // Gets the status of the input with the incorrect words.
-  incorrectWords = autocorrect.checkSpelling();
+  incorrectWords = ac.checkSpelling();
 
   // Creates a set of suggestions for all the incorrect words.
   initializeSuggestions();
@@ -91,7 +97,7 @@ bool readFile(string filePath) {
       }
     }
     ifile.close();
-    autocorrect.setContents(contents);
+    ac.setContents(contents);
     return true;
   } else {
     cout << "Unable to open the file" << endl;
@@ -115,7 +121,17 @@ void readInput(int argc, char **argv) {
       contents.push_back(word);
     }
   }
-  autocorrect.setContents(contents);
+  ac.setContents(contents);
+}
+
+/**
+ * Initiates the suggestions map for all the words.
+ */
+void initializeSuggestions() {
+  for (auto const &it : incorrectWords) {
+    string word = it.first;
+    suggestions[word] = ac.makeSuggestions(word);
+  }
 }
 
 /**
@@ -126,8 +142,10 @@ void inputUI() {
   bool running = true;
 
   while (running) {
-    cout << "(autocorrect) ";
+    cout << "\033[1;" << 30 + cyan << "m";
+    cout << endl << "(autocorrect) ";
     getline(cin, input);
+    cout << "\033[0m\n";
 
     istringstream ss(input);
 
@@ -180,6 +198,8 @@ void inputUI() {
         command = 6;
       } else if (word == "switch") {
         command = 7;
+      } else if (word == "help" || word == "h") {
+        command = 8;
       }
     }
 
@@ -200,6 +220,8 @@ void inputUI() {
       saveDictionary();
     } else if (command == 7) {
       switchDictionary();
+    } else if (command == 8) {
+      help();
     } else {
       cout << "Invalid Command" << endl;
     }
@@ -231,16 +253,6 @@ void makeSuggestions(string word) {
 }
 
 /**
- * Initiates the suggestions map for all the words.
- */
-void initializeSuggestions() {
-  for (auto const &it : incorrectWords) {
-    string word = it.first;
-    suggestions[word] = autocorrect.makeSuggestions(word);
-  }
-}
-
-/**
  * Applies the suggestion for the given word.
  * @param word the word to change.
  * @param suggestion the suggestion to apply.
@@ -268,7 +280,7 @@ void applySuggestion(string word, string suggestion) {
 void addToDictionary(string word) {
   if (incorrectWords.find(word) != incorrectWords.end()) {
     incorrectWords[word] = word;
-    autocorrect.addToDictionary(word);
+    ac.addToDictionary(word);
     initializeSuggestions();
   } else {
     cout << "The word that you entered is not one of the incorrect words"
@@ -281,7 +293,7 @@ void addToDictionary(string word) {
  * @parram the word to remove from the dictionary.
  */
 void removeFromDictionary(string word) {
-  if (autocorrect.removeFromDictionary(word)) {
+  if (ac.removeFromDictionary(word)) {
     incorrectWords[word] = "";
     initializeSuggestions();
   } else {
@@ -300,7 +312,7 @@ void saveDictionary() {
 
   ofstream newDictionary(filePath);
 
-  vector<string> dictionary = autocorrect.getDictionary();
+  vector<string> dictionary = ac.getDictionary();
 
   if (newDictionary.is_open()) {
 
@@ -323,11 +335,71 @@ void switchDictionary() {
   cout << "Enter the path to the dictionary file: ";
   getline(cin, filePath);
 
-  if (autocorrect.buildDictionary(filePath)) {
-    incorrectWords = autocorrect.checkSpelling();
+  if (ac.buildDictionary(filePath)) {
+    incorrectWords = ac.checkSpelling();
     initializeSuggestions();
     getStatus();
   }
+}
+
+/**
+ * Gives a list of all the available commands.
+ */
+void help() {
+  cout << "\033[1;" << 30 + yellow << "m";
+
+  cout << "Here is a list of all the available commands:" << endl;
+
+  cout << endl
+       << "Use 'status' to get the current status of the program" << endl;
+  cout << "-> Incorrect words are marked with red and all the corrections are "
+          "marked with green."
+       << endl;
+
+  cout
+      << endl
+      << "Use 'suggest <word>' to get a list of suggestions for the given word."
+      << endl;
+  cout << "-> Note that the word you enter should be among the list of the "
+          "incorrect words."
+       << endl;
+
+  cout << endl
+       << "Use 'apply <word> <suggestion>' to replace the word with the "
+          "suggestion."
+       << endl;
+  cout << "-> Note that the word you enter must be among the list of the "
+          "incorrect words and the suggestion should be in the list of the "
+          "suggestions for that word."
+       << endl;
+
+  cout << endl
+       << "Use 'add <word>' to add a given word to the dictionary that the "
+          "program uses."
+       << endl;
+
+  cout << endl
+       << "Use 'remove <word>' to remove a given word from the dictionary that "
+          "the program uses."
+       << endl;
+
+  cout << endl
+       << "Use 'save' to save the current version of the dictionary "
+          "that the program uses."
+       << endl;
+  cout << "-> You will be then prompted to enter the path to save the "
+          "dictionary to."
+       << endl;
+
+  cout << endl
+       << "Use 'switch' to switch the dictionary of the program to "
+          "a new one."
+       << endl;
+  cout << "-> You will be then prompted to enter the path to load the "
+          "dictionary from."
+       << endl;
+
+  cout << "\033[0m\n";
 }
 
 /**
@@ -357,7 +429,11 @@ void printMap(map<string, string> mapToPrint, int colour1, int colour2) {
     if (it.second == "") {
       incorrect.push_back(it.first);
     } else {
-      correct.push_back(it.first + " -> " + it.second + "\n");
+      if (it.first == it.second) {
+        correct.push_back("(added) " + it.first + " -> " + it.second + "\n");
+      } else {
+        correct.push_back(it.first + " -> " + it.second + "\n");
+      }
     }
   }
 

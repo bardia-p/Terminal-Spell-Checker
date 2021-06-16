@@ -1,20 +1,20 @@
 #include "inc/autocorrectlib.h"
 
-AutoCorrect::AutoCorrect() {
+AutoCorrectContext::AutoCorrectContext() {
   contents = vector<string>();
   dictionary = map<string, vector<string>>();
 }
 
-void AutoCorrect::setContents(vector<string> contents) {
+void AutoCorrectContext::setContents(vector<string> contents) {
   this->contents = contents;
 }
 
-void AutoCorrect::addToDictionary(string word) {
+void AutoCorrectContext::addToDictionary(string word) {
   string key = makeSoundex(word);
   dictionary[key].push_back(word);
 }
 
-bool AutoCorrect::removeFromDictionary(string word) {
+bool AutoCorrectContext::removeFromDictionary(string word) {
   string key = makeSoundex(word);
   if (dictionary.find(key) != dictionary.end()) {
     auto index = find(dictionary[key].begin(), dictionary[key].end(), word);
@@ -29,7 +29,7 @@ bool AutoCorrect::removeFromDictionary(string word) {
   return false;
 }
 
-bool AutoCorrect::buildDictionary(string fileName) {
+bool AutoCorrectContext::buildDictionary(string fileName) {
   ifstream ifile(fileName);
   string word;
 
@@ -45,7 +45,7 @@ bool AutoCorrect::buildDictionary(string fileName) {
   }
 }
 
-bool AutoCorrect::isInDictionary(string word) {
+bool AutoCorrectContext::isInDictionary(string word) {
   string key = makeSoundex(word);
 
   if (dictionary.find(key) != dictionary.end()) {
@@ -60,7 +60,7 @@ bool AutoCorrect::isInDictionary(string word) {
   return false;
 }
 
-map<string, string> AutoCorrect::checkSpelling() {
+map<string, string> AutoCorrectContext::checkSpelling() {
   map<string, string> incorrectWords;
 
   for (int i = 0; i < contents.size(); i++) {
@@ -71,7 +71,7 @@ map<string, string> AutoCorrect::checkSpelling() {
   return incorrectWords;
 }
 
-int AutoCorrect::charCode(char c) {
+int AutoCorrectContext::charCode(char c) {
   c = toupper(c);
   if (c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U' || c == 'H' ||
       c == 'W' || c == 'Y') {
@@ -92,7 +92,7 @@ int AutoCorrect::charCode(char c) {
   }
 }
 
-string AutoCorrect::makeSoundex(string word) {
+string AutoCorrectContext::makeSoundex(string word) {
   string soundexCode = "";
   char sameLetter = '\0';
   for (int i = 0; i < word.length(); i++) {
@@ -119,7 +119,7 @@ string AutoCorrect::makeSoundex(string word) {
   return soundexCode;
 }
 
-vector<string> AutoCorrect::makeSuggestions(string word) {
+vector<string> AutoCorrectContext::makeSuggestions(string word) {
   string key = makeSoundex(word);
   vector<string> suggestions = vector<string>();
 
@@ -134,7 +134,7 @@ vector<string> AutoCorrect::makeSuggestions(string word) {
   return suggestions;
 }
 
-vector<string> AutoCorrect::getDictionary() {
+vector<string> AutoCorrectContext::getDictionary() {
   vector<string> dictionaryVector;
 
   for (auto const &it : dictionary) {
