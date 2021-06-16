@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  cout << "\033[1;" << 30 + magenta << "m";
+  cout << "\033[1;" << 30 + yellow << "m";
   cout << "AutoCorrect version 1.0.0" << endl;
   cout << "To get a list of commands enter 'help' or 'h'" << endl;
   cout << "\033[0m\n";
@@ -346,7 +346,7 @@ void switchDictionary() {
  * Gives a list of all the available commands.
  */
 void help() {
-  cout << "\033[1;" << 30 + yellow << "m";
+  cout << "\033[1;" << 30 + magenta << "m";
 
   cout << "Here is a list of all the available commands:" << endl;
 
