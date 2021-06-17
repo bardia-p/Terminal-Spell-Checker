@@ -86,6 +86,12 @@ remove bardia
 
 Notice that once you load a new dictionary all of your previous changes will be discarded and the program will reanalyze your input. 
 
+- You can exit the program at anytime by entering "q" or "quit":
+```
+(autocorrect) q
+Goodbye!
+```
+
 ## CREDITS
 Author: Bardia Parmoun
 
