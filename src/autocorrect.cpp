@@ -39,7 +39,7 @@ static map<string, vector<string>> suggestions;
 
 int main(int argc, char **argv) {
   // Initiates the words in the dictionary
-  ac.buildDictionary("files/wordslist.txt");
+  ac.buildDictionary("/usr/local/bin/files/wordslist.txt");
 
   if (argc == 3 && strcmp(argv[1], "-f") == 0) {
     // If the user wants to use a file input
