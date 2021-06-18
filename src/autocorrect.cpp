@@ -37,6 +37,15 @@ static AutoCorrectContext ac;
 static map<string, string> incorrectWords;
 static map<string, vector<string>> suggestions;
 
+string lowercase(string s){
+  std::for_each(s.begin(), s.end(), [](char & c){
+      c = ::tolower(c);
+  });
+
+  return s;
+}
+
+
 int main(int argc, char **argv) {
   // Initiates the words in the dictionary
   ac.buildDictionary("/usr/local/bin/files/wordslist.txt");
@@ -91,9 +100,9 @@ bool readFile(string filePath) {
     while (ifile >> word) {
       if (word[word.length() - 1] == '.' || word[word.length() - 1] == ',' ||
           word[word.length() - 1] == ';') {
-        contents.push_back(word.substr(0, word.length() - 1));
+        contents.push_back(lowercase(word.substr(0, word.length() - 1)));
       } else {
-        contents.push_back(word);
+        contents.push_back(lowercase(word));
       }
     }
     ifile.close();
@@ -116,9 +125,9 @@ void readInput(int argc, char **argv) {
     string word = argv[i];
     if (word[word.length() - 1] == '.' || word[word.length() - 1] == ',' ||
         word[word.length() - 1] == ';') {
-      contents.push_back(word.substr(0, word.length() - 1));
+      contents.push_back(lowercase(word.substr(0, word.length() - 1)));
     } else {
-      contents.push_back(word);
+      contents.push_back(lowercase(word));
     }
   }
   ac.setContents(contents);
