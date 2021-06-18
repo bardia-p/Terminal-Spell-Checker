@@ -20,6 +20,11 @@ $ sudo ./startup.sh
 
  
 ## USING THE PROGRAM
+Here is an example of using the program:
+
+<p align="center">
+<img src="images/autocorrect.JPG" />
+</p>
 
 ### Giving an input to the program
 
