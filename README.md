@@ -23,7 +23,7 @@ $ sudo ./startup.sh
 Here is an example of using the program:
 
 <p align="center">
-<img src="images/autocorrect.JPG" />
+<img src="images/autocorrect.jpg" />
 </p>
 
 ### Giving an input to the program
