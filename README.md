@@ -5,7 +5,7 @@ by Bardia Parmoun
 Released on: 16/06/2021
 
 ## DESCRIPTION
-- This program is a simple spell checker for the terminal.
+- This program is a simple spell checker for the terminal that uses the [soundex algorithm](https://en.wikipedia.org/wiki/Soundex).
 - You can enter your text either through direct input or through a file and the program will run it through its builtin dictionary. 
 - This program will be added to your system as a builtin linux command that you can then use anywhere!
 
